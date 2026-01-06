@@ -1,0 +1,15 @@
+$ bun --hot index.ts
+GPS WebSocket Service running on port 3003
+Environment: development
+Client connected: GRxcx_4K8-9Qn6hLAAAB
+Client disconnected: GRxcx_4K8-9Qn6hLAAAB
+Client connected: fKBvCPbdM3cr7iKAAAAD
+Client disconnected: fKBvCPbdM3cr7iKAAAAD
+Client connected: xU28PEJ4Mten_z_eAAAF
+Client disconnected: xU28PEJ4Mten_z_eAAAF
+Client connected: cJ5M_zQ1ZuD32ZeZAAAH
+Client connected: aeYa2yyptyFgbU16AAAJ
+Client disconnected: cJ5M_zQ1ZuD32ZeZAAAH
+Client connected: TYhgXhp81h-YyulHAAAL
+Client disconnected: aeYa2yyptyFgbU16AAAJ
+Client disconnected: TYhgXhp81h-YyulHAAAL

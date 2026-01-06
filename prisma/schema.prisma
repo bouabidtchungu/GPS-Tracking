@@ -1,0 +1,165 @@
+// GPS Tracking Platform - Database Schema
+// Next.js 15 + Prisma + SQLite (PostgreSQL-ready)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String   // Hashed password using bcrypt
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  devices   Device[]
+  sessions  Session[]
+}
+
+// User roles for access control
+enum Role {
+  ADMIN    // Full access to all devices
+  USER     // Access only to own devices
+}
+
+// User sessions for authentication
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ============================================
+// DEVICE MANAGEMENT
+// ============================================
+
+model Device {
+  id          String    @id @default(cuid())
+  name        String    // Display name (e.g., "John's Phone", "Family Car")
+  userId      String    // Owner of the device
+  deviceId    String    @unique // Unique identifier for the tracking device
+  isActive    Boolean   @default(true)
+  lastSeen    DateTime?
+  latitude    Float?
+  longitude   Float?
+  speedKmh    Float?    // Speed in km/h
+  speedMph    Float?    // Speed in mph
+  heading     Float?    // Direction in degrees (0-360)
+  motionState MotionState?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locations   Location[]
+  history    LocationHistory[]
+  captures   CameraCapture[]
+
+  @@index([userId])
+  @@index([deviceId])
+  @@index([isActive])
+}
+
+// Motion state enumeration
+enum MotionState {
+  STATIONARY  // Speed < 2 km/h
+  WALKING     // Speed 2-10 km/h
+  DRIVING     // Speed > 10 km/h
+  UNKNOWN     // Unable to determine
+}
+
+// ============================================
+// REAL-TIME LOCATION
+// ============================================
+
+model Location {
+  id          String     @id @default(cuid())
+  deviceId    String
+  latitude    Float
+  longitude   Float
+  accuracy    Float?     // GPS accuracy in meters
+  altitude    Float?     // Altitude in meters
+  speedKmh    Float?     // Speed in km/h
+  speedMph    Float?     // Speed in mph
+  heading     Float?     // Direction in degrees (0-360)
+  motionState MotionState?
+  timestamp   DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+
+  // Relations
+  device      Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@index([timestamp])
+  @@index([deviceId, timestamp])
+}
+
+// ============================================
+// LOCATION HISTORY
+// ============================================
+
+model LocationHistory {
+  id          String     @id @default(cuid())
+  deviceId    String
+  latitude    Float
+  longitude   Float
+  accuracy    Float?     // GPS accuracy in meters
+  altitude    Float?     // Altitude in meters
+  speedKmh    Float?     // Speed in km/h
+  speedMph    Float?     // Speed in mph
+  heading     Float?     // Direction in degrees (0-360)
+  motionState MotionState?
+  timestamp   DateTime   // When the location was recorded
+  createdAt   DateTime   @default(now())
+
+  // Relations
+  device      Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@index([timestamp])
+  @@index([deviceId, timestamp])
+}
+
+// ============================================
+// CAMERA CAPTURES (OPTIONAL FEATURE)
+// ============================================
+
+model CameraCapture {
+  id          String   @id @default(cuid())
+  deviceId    String
+  imageUrl    String   // Path to stored image
+  thumbnailUrl String? // Path to thumbnail image
+  latitude    Float?   // Location when photo was taken
+  longitude   Float?   // Location when photo was taken
+  description String?  // Optional description
+  createdAt   DateTime @default(now())
+
+  // Relations
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@index([createdAt])
+}

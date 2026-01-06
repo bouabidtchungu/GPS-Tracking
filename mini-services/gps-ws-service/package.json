@@ -1,0 +1,18 @@
+{
+  "name": "gps-ws-service",
+  "version": "1.0.0",
+  "description": "WebSocket service for GPS tracking platform",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
